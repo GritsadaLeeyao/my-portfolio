@@ -1,7 +1,8 @@
 "use client";
 
+import { FormEvent, useState } from "react";
 import { motion } from "framer-motion";
-import { Mail } from "lucide-react";
+import { Mail, Send, CheckCircle, AlertCircle } from "lucide-react";
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -19,13 +20,8 @@ function LinkedinIcon({ className }: { className?: string }) {
   );
 }
 
-const contacts = [
-  {
-    label: "Email",
-    value: "gritsada723@gmail.com",
-    href: "mailto:gritsada723@gmail.com",
-    icon: Mail,
-  },
+
+const socialLinks = [
   {
     label: "GitHub",
     value: "GritsadaLeeyao",
@@ -38,24 +34,55 @@ const contacts = [
     href: "https://www.linkedin.com/in/gritsada-leeyao-003729205/",
     icon: LinkedinIcon,
   },
+  {
+    label: "Email",
+    value: "gritsada723@gmail.com",
+    href: "mailto:gritsada723@gmail.com",
+    icon: Mail,
+  },
 ];
 
+type Status = "idle" | "loading" | "success" | "error";
+
 export default function Contact() {
+  const [status, setStatus] = useState<Status>("idle");
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setStatus("loading");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error("Failed");
+
+      setStatus("success");
+      setForm({ name: "", email: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
+  };
+
   return (
     <section
       id="contact"
       className="flex min-h-screen flex-col items-center justify-center px-6 py-24"
     >
-      <div className="mx-auto max-w-2xl w-full">
+      <div className="mx-auto max-w-5xl w-full">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col items-center gap-10 text-center"
+          className="flex flex-col gap-12"
         >
           {/* Header */}
-          <div>
+          <div className="text-center">
             <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-2">
               Get in touch
             </p>
@@ -68,32 +95,118 @@ export default function Contact() {
             </p>
           </div>
 
-          {/* Contact cards */}
-          <div className="flex flex-col gap-4 w-full">
-            {contacts.map((c, i) => {
-              const Icon = c.icon;
-              return (
-                <motion.a
-                  key={c.label}
-                  href={c.href}
-                  target={c.label !== "Email" ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, x: -16 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="flex items-center gap-4 rounded-xl border border-border bg-card px-6 py-4 text-left transition-colors hover:bg-muted"
-                >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">{c.label}</p>
-                    <p className="text-sm font-medium">{c.value}</p>
-                  </div>
-                </motion.a>
-              );
-            })}
+          <div className="grid gap-10 md:grid-cols-2 md:items-start">
+            {/* Social links */}
+            <div className="flex flex-col gap-4">
+              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Find me on
+              </p>
+              {socialLinks.map((c, i) => {
+                const Icon = c.icon;
+                return (
+                  <motion.a
+                    key={c.label}
+                    href={c.href}
+                    target={c.label !== "Email" ? "_blank" : undefined}
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:bg-muted"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">{c.label}</p>
+                      <p className="text-sm font-medium">{c.value}</p>
+                    </div>
+                  </motion.a>
+                );
+              })}
+            </div>
+
+            {/* Form */}
+            <motion.form
+              onSubmit={handleSubmit}
+              initial={{ opacity: 0, x: 16 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-6"
+            >
+              <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Send a message
+              </p>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Your name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary placeholder:text-muted-foreground/50"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary placeholder:text-muted-foreground/50"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-muted-foreground">
+                  Message
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="What's on your mind?"
+                  value={form.message}
+                  onChange={(e) =>
+                    setForm({ ...form, message: e.target.value })
+                  }
+                  className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary placeholder:text-muted-foreground/50 resize-none"
+                />
+              </div>
+
+              {/* Status messages */}
+              {status === "success" && (
+                <div className="flex items-center gap-2 rounded-lg bg-green-500/10 px-3 py-2 text-sm text-green-600 dark:text-green-400">
+                  <CheckCircle className="h-4 w-4 shrink-0" />
+                  Message sent! I&apos;ll get back to you soon.
+                </div>
+              )}
+              {status === "error" && (
+                <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  Something went wrong. Please try again.
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="mt-1 flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80 disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" />
+                {status === "loading" ? "Sending…" : "Send Message"}
+              </button>
+            </motion.form>
           </div>
         </motion.div>
       </div>

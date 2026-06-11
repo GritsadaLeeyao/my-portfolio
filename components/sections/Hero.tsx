@@ -2,8 +2,18 @@
 
 import { motion } from "framer-motion";
 import { Download } from "lucide-react";
+import { useTypewriter } from "@/hooks/useTypewriter";
+
+const roles = [
+  "Full Stack Developer",
+  "React Developer",
+  "Next.js Developer",
+  "Node.js Developer",
+];
 
 export default function Hero() {
+  const role = useTypewriter({ words: roles });
+
   return (
     <section
       id="hero"
@@ -25,9 +35,10 @@ export default function Hero() {
           Gritsada Leeyao
         </h1>
 
-        {/* Role */}
-        <p className="text-xl text-muted-foreground sm:text-2xl">
-          Full Stack Developer
+        {/* Role — typewriter */}
+        <p className="text-xl text-muted-foreground sm:text-2xl h-8 flex items-center gap-1">
+          {role}
+          <span className="inline-block w-0.5 h-6 bg-primary animate-pulse" />
         </p>
 
         {/* Short tagline */}

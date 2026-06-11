@@ -35,14 +35,12 @@ export const metadata: Metadata = {
     description:
       "Full Stack Developer specializing in React, Next.js, Node.js, and TypeScript.",
     siteName: "Big.dev",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Big.dev" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Big.dev — Full Stack Developer",
     description:
       "Full Stack Developer specializing in React, Next.js, Node.js, and TypeScript.",
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,

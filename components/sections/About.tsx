@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function About() {
@@ -16,10 +17,16 @@ export default function About() {
           transition={{ duration: 0.6 }}
           className="grid gap-12 md:grid-cols-2 md:items-center"
         >
-          {/* Avatar placeholder */}
+          {/* Avatar */}
           <div className="flex justify-center md:justify-start">
-            <div className="h-56 w-56 rounded-2xl bg-muted border border-border flex items-center justify-center text-6xl select-none">
-              👨‍💻
+            <div className="relative h-72 w-72 overflow-hidden rounded-2xl border border-border shadow-sm">
+              <Image
+                src="/profile.jpg"
+                alt="Gritsada Leeyao"
+                fill
+                className="object-cover object-top"
+                priority
+              />
             </div>
           </div>
 

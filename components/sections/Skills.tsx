@@ -1,29 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-
-const skills = [
-  // Frontend
-  { name: "React", category: "Frontend", icon: "⚛️" },
-  { name: "Next.js", category: "Frontend", icon: "▲" },
-  { name: "TypeScript", category: "Frontend", icon: "🔷" },
-  { name: "JavaScript", category: "Frontend", icon: "🟨" },
-  { name: "Tailwind CSS", category: "Frontend", icon: "🎨" },
-  { name: "HTML / CSS", category: "Frontend", icon: "🌐" },
-  // Backend
-  { name: "Node.js", category: "Backend", icon: "🟢" },
-  { name: "Express.js", category: "Backend", icon: "🚂" },
-  { name: "REST APIs", category: "Backend", icon: "🔗" },
-  { name: "PostgreSQL", category: "Backend", icon: "🐘" },
-  { name: "Prisma", category: "Backend", icon: "💎" },
-  // Tools
-  { name: "Git & GitHub", category: "Tools", icon: "🐙" },
-  { name: "Docker", category: "Tools", icon: "🐳" },
-  { name: "Figma", category: "Tools", icon: "🖼️" },
-  { name: "Vercel", category: "Tools", icon: "🚀" },
-];
-
-const categories = ["Frontend", "Tools", "Backend"];
+import { skills, skillCategories } from "@/data/skills";
 
 export default function Skills() {
   return (
@@ -51,7 +29,7 @@ export default function Skills() {
 
           {/* Skills by category */}
           <div className="flex flex-col gap-8">
-            {categories.map((cat) => (
+            {skillCategories.map((cat) => (
               <div key={cat}>
                 <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                   {cat}
