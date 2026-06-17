@@ -1,39 +1,128 @@
-import { ExternalLink } from "lucide-react";
+import Image from "next/image";
+import { ExternalLink, Star } from "lucide-react";
+import GithubIcon from "@/components/icons/GithubIcon";
 import type { Project } from "@/data/projects";
+import { siteConfig } from "@/data/site";
+import { cn } from "@/lib/utils";
 
-function GithubIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-    </svg>
-  );
-}
+const languageStyles: Record<
+  string,
+  { gradient: string; accent: string; label: string }
+> = {
+  TypeScript: {
+    gradient: "from-[#3178c6]/20 via-[#3178c6]/5 to-transparent",
+    accent: "text-[#3178c6]",
+    label: "TS",
+  },
+  Java: {
+    gradient: "from-[#b07219]/25 via-[#b07219]/5 to-transparent",
+    accent: "text-[#b07219]",
+    label: "Java",
+  },
+  HTML: {
+    gradient: "from-[#e34c26]/20 via-[#e34c26]/5 to-transparent",
+    accent: "text-[#e34c26]",
+    label: "HTML",
+  },
+};
 
-export default function ProjectCard({ project }: { project: Project }) {
+export default function ProjectCard({
+  project,
+  featured = false,
+}: {
+  project: Project;
+  featured?: boolean;
+}) {
+  const style = languageStyles[project.language] ?? languageStyles.TypeScript;
+
   return (
-    <div className="group flex flex-col rounded-2xl border border-border bg-card overflow-hidden shadow-sm transition-shadow hover:shadow-md">
-      {/* Image / placeholder */}
-      <div className="h-48 bg-muted flex items-center justify-center text-4xl select-none overflow-hidden">
+    <article
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
+        featured && "lg:flex-row lg:items-stretch"
+      )}
+    >
+      <div
+        className={cn(
+          "relative flex shrink-0 items-center justify-center overflow-hidden bg-muted",
+          featured ? "h-48 lg:h-auto lg:w-2/5" : "h-40"
+        )}
+      >
+        <div className={cn("absolute inset-0 bg-gradient-to-br", style.gradient)} />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,currentColor_1px,transparent_0)] bg-[length:20px_20px] opacity-[0.03]" />
+
         {project.image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={project.image}
             alt={project.title}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes={
+              featured
+                ? "(max-width: 1024px) 100vw, 400px"
+                : "(max-width: 640px) 100vw, 320px"
+            }
+            className="relative z-10 object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <span>🖥️</span>
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <span
+              className={cn(
+                "font-mono text-3xl font-bold tracking-tight",
+                style.accent
+              )}
+            >
+              {style.label}
+            </span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {project.repo}
+            </span>
+          </div>
+        )}
+
+        {project.featured && (
+          <span className="absolute left-4 top-4 z-20 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary-foreground">
+            Featured
+          </span>
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-1 flex-col gap-3 p-5">
-        <h3 className="text-lg font-semibold">{project.title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+      <div
+        className={cn(
+          "flex flex-1 flex-col gap-3 p-5",
+          featured && "lg:justify-center lg:p-8"
+        )}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3
+              className={cn(
+                "font-semibold tracking-tight",
+                featured ? "text-xl sm:text-2xl" : "text-lg"
+              )}
+            >
+              {project.title}
+            </h3>
+            <p className="mt-0.5 font-mono text-xs text-muted-foreground">
+              {siteConfig.github.username}/{project.repo}
+            </p>
+          </div>
+          {(project.stars ?? 0) > 0 && (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              <Star className="h-3 w-3 fill-current" aria-hidden="true" />
+              {project.stars}
+            </span>
+          )}
+        </div>
+
+        <p
+          className={cn(
+            "flex-1 leading-relaxed text-muted-foreground",
+            featured ? "text-sm sm:text-base" : "text-sm"
+          )}
+        >
           {project.description}
         </p>
 
-        {/* Tech badges */}
         <div className="flex flex-wrap gap-1.5">
           {project.tech.map((t) => (
             <span
@@ -45,32 +134,29 @@ export default function ProjectCard({ project }: { project: Project }) {
           ))}
         </div>
 
-        {/* Links */}
-        <div className="flex gap-3 pt-1">
-          {project.github && (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <GithubIcon className="h-4 w-4" />
-              GitHub
-            </a>
-          )}
+        <div className="mt-auto flex flex-wrap gap-3 pt-2">
+          <a
+            href={project.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <GithubIcon className="h-4 w-4" />
+            Source
+          </a>
           {project.demo && (
             <a
               href={project.demo}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-4 w-4" aria-hidden="true" />
               Live Demo
             </a>
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

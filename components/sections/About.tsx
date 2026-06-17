@@ -1,7 +1,18 @@
 "use client";
 
-import Image from "next/image";
-import { motion } from "framer-motion";
+import Reveal from "@/components/motion/Reveal";
+import ProfileAvatar from "@/components/ProfileAvatar";
+import SectionHeader from "@/components/SectionHeader";
+import { siteConfig } from "@/data/site";
+
+const aboutTags = [
+  "React",
+  "Next.js",
+  "Node.js",
+  "TypeScript",
+  "Tailwind CSS",
+  "PostgreSQL",
+];
 
 export default function About() {
   return (
@@ -9,47 +20,30 @@ export default function About() {
       id="about"
       className="flex min-h-screen flex-col items-center justify-center bg-muted/50 px-6 py-24"
     >
-      <div className="mx-auto max-w-4xl w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="grid gap-12 md:grid-cols-2 md:items-center"
-        >
-          {/* Avatar */}
+      <div className="mx-auto w-full max-w-5xl">
+        <Reveal className="grid gap-12 md:grid-cols-2 md:items-center">
           <div className="flex justify-center md:justify-start">
-            <div className="relative h-72 w-72 overflow-hidden rounded-2xl border border-border shadow-sm">
-              <Image
-                src="/profile.jpg"
-                alt="Gritsada Leeyao"
-                fill
-                className="object-cover object-top"
-                priority
-              />
-            </div>
+            <ProfileAvatar />
           </div>
 
-          {/* Text */}
           <div className="flex flex-col gap-4">
-            <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-              About Me
+            <SectionHeader
+              eyebrow="About Me"
+              title={`Hi, I'm ${siteConfig.nickname}`}
+              align="left"
+            />
+            <p className="leading-relaxed text-muted-foreground">
+              I&apos;m a {siteConfig.title} who enjoys building complete web
+              products — from pixel-perfect UIs to APIs and databases. I love
+              taking an idea and shipping it end-to-end.
             </p>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Hi, I&apos;m Big 👋
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              I&apos;m a Full Stack Developer who enjoys building complete
-              web products — from pixel-perfect UIs to APIs and databases.
-              I love taking an idea and shipping it end-to-end.
-            </p>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="leading-relaxed text-muted-foreground">
               When I&apos;m not coding, I enjoy learning new technologies,
               contributing to open-source projects, and exploring the
               intersection of design and engineering.
             </p>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {["React", "Next.js", "Node.js", "TypeScript", "Tailwind CSS", "PostgreSQL"].map((tag) => (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {aboutTags.map((tag) => (
                 <span
                   key={tag}
                   className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
@@ -59,7 +53,7 @@ export default function About() {
               ))}
             </div>
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );

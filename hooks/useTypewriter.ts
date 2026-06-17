@@ -1,13 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Options {
   words: string[];
-  typeSpeed?: number;   // ms per character typing
-  deleteSpeed?: number; // ms per character deleting
-  pauseAfterType?: number; // ms pause after fully typed
-  pauseAfterDelete?: number; // ms pause after fully deleted
+  typeSpeed?: number;
+  deleteSpeed?: number;
+  pauseAfterType?: number;
+}
+
+function getInitialReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function useTypewriter({
@@ -15,38 +19,55 @@ export function useTypewriter({
   typeSpeed = 80,
   deleteSpeed = 45,
   pauseAfterType = 2000,
-  pauseAfterDelete = 400,
 }: Options) {
-  const [text, setText] = useState("");
-  const [wordIndex, setWordIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const reducedMotion = useRef(getInitialReducedMotion());
+  const [text, setText] = useState(words[0] ?? "");
+  const wordIndex = useRef(0);
+  const isDeleting = useRef(false);
+  const charIndex = useRef(words[0]?.length ?? 0);
 
   useEffect(() => {
-    const currentWord = words[wordIndex % words.length];
+    if (reducedMotion.current) return;
 
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        // Typing
-        setText(currentWord.slice(0, text.length + 1));
+    let timeoutId: ReturnType<typeof setTimeout>;
+    let pauseId: ReturnType<typeof setTimeout>;
 
-        if (text.length + 1 === currentWord.length) {
-          // Fully typed — pause then start deleting
-          setTimeout(() => setIsDeleting(true), pauseAfterType);
+    const tick = () => {
+      const currentWord = words[wordIndex.current % words.length];
+
+      if (!isDeleting.current) {
+        charIndex.current += 1;
+        setText(currentWord.slice(0, charIndex.current));
+
+        if (charIndex.current === currentWord.length) {
+          pauseId = setTimeout(() => {
+            isDeleting.current = true;
+            tick();
+          }, pauseAfterType);
+          return;
         }
+
+        timeoutId = setTimeout(tick, typeSpeed);
       } else {
-        // Deleting
-        setText(currentWord.slice(0, text.length - 1));
+        charIndex.current -= 1;
+        setText(currentWord.slice(0, charIndex.current));
 
-        if (text.length - 1 === 0) {
-          // Fully deleted — move to next word
-          setIsDeleting(false);
-          setWordIndex((i) => (i + 1) % words.length);
+        if (charIndex.current === 0) {
+          isDeleting.current = false;
+          wordIndex.current = (wordIndex.current + 1) % words.length;
         }
-      }
-    }, isDeleting ? deleteSpeed : typeSpeed);
 
-    return () => clearTimeout(timeout);
-  }, [text, isDeleting, wordIndex, words, typeSpeed, deleteSpeed, pauseAfterType]);
+        timeoutId = setTimeout(tick, deleteSpeed);
+      }
+    };
+
+    timeoutId = setTimeout(tick, typeSpeed);
+
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(pauseId);
+    };
+  }, [words, typeSpeed, deleteSpeed, pauseAfterType]);
 
   return text;
 }
